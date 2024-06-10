@@ -1,3 +1,4 @@
+import { completedSchema } from '@/app/validation/completedSchema';
 import { idParamSchema } from '@/app/validation/idParamSchema';
 import { todoSchema } from '@/app/validation/todoSchema';
 import { db } from '@/lib/db';
@@ -83,6 +84,35 @@ export async function PUT(
         title,
         description,
       },
+    });
+
+    return NextResponse.json(updatedTodo);
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params: { id } }: { params: { id: string } },
+) {
+  try {
+    const { completed } = await req.json();
+
+    const validationResult = completedSchema.safeParse({ completed });
+
+    if (!validationResult.success) {
+      const errorMessage = validationResult.error.errors[0].message;
+      return NextResponse.json({ error: errorMessage });
+    }
+
+    const updatedTodo = await db.todo.update({
+      where: { id },
+      data: { completed },
     });
 
     return NextResponse.json(updatedTodo);
