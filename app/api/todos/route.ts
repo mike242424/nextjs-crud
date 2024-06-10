@@ -1,4 +1,4 @@
-import { postTodoSchema } from '@/app/validation/postTodoSchema';
+import { todoSchema } from '@/app/validation/todoSchema';
 import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   try {
     const { title, description } = await req.json();
 
-    const validationResult = postTodoSchema.safeParse({ title, description });
+    const validationResult = todoSchema.safeParse({ title, description });
 
     if (!validationResult.success) {
       const errorMessage = validationResult.error.errors[0].message;

@@ -1,6 +1,6 @@
 import z from 'zod';
 
-export const postTodoSchema = z.object({
+export const todoSchema = z.object({
   title: z
     .string()
     .min(1, 'Title must be provided')
