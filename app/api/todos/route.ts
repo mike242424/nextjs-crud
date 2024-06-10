@@ -26,3 +26,16 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET() {
+  try {
+    const todos = await db.todo.findMany();
+    return NextResponse.json(todos);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 },
+    );
+  }
+}
