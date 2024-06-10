@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       data: { title, description },
     });
 
-    return NextResponse.json(todo);
+    return NextResponse.json(todo, { status: 201 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
