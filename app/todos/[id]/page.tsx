@@ -2,6 +2,7 @@
 
 import { Todo } from '@prisma/client';
 import axios from 'axios';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -53,6 +54,9 @@ const TodoView = ({ params: { id } }: { params: { id: string } }) => {
       <button onClick={handleDelete} className="bg-red-500 p-4">
         Delete
       </button>
+      <Link className="bg-green-500 p-4" href={`/todos/update/${id}`}>
+        Update
+      </Link>
     </div>
   );
 };
