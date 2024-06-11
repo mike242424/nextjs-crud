@@ -1,53 +1,73 @@
 'use client';
 
-import { Todo } from '@prisma/client';
+import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import React from 'react';
+import { useForm, FieldValues } from 'react-hook-form';
+import { todoSchema } from './validation/todoSchema';
 
 const Home = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting, errors },
+  } = useForm({
+    resolver: zodResolver(todoSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+    },
+  });
+  const router = useRouter();
 
-  useEffect(() => {
-    async function getTodos() {
-      try {
-        const res = await axios.get('http://localhost:3002/api/todos');
-        setTodos(res.data);
-      } catch (error) {
-        setError('Error fetching todos');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    getTodos();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
+  async function onSubmit(data: FieldValues) {
+    const response = await axios.post(`http://localhost:3000/api/todos`, {
+      title: data.title,
+      description: data.description,
+    });
+    reset();
+    router.push('/todos');
   }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
   return (
-    <div>
-      {todos.map((todo: Todo) => (
-        <TodoItem key={todo.id} todo={todo} />
-      ))}
+    <div className="flex flex-col justify-center items-center gap-4">
+      <Link className="bg-blue-500 p-4 rounded" href={'/todos'}>
+        Todos
+      </Link>
+      <form
+        className="flex flex-col w-6/12 gap-2"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <input
+          className="p-3 border border-blue-500 rounded"
+          {...register('title')}
+          type="text"
+          placeholder="Title"
+        />
+        {errors?.title && (
+          <p className="text-red-500">{errors.title?.message}</p>
+        )}
+        <input
+          className="p-3 border border-blue-500 rounded"
+          {...register('description')}
+          type="text"
+          placeholder="Description"
+        />
+        {errors?.description && (
+          <p className="text-red-500">{errors?.description.message}</p>
+        )}
+        <button
+          className="bg-blue-500 p-3 rounded"
+          type="submit"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit'}
+        </button>
+      </form>
     </div>
   );
 };
-
-const TodoItem = ({ todo }: { todo: Todo }) => (
-  <Link href={`/${todo.id}`}>
-    <div>{todo.title}</div>
-    <div>{todo.description}</div>
-    <div>{todo.completed === true ? 'completed' : 'not completed'}</div>
-  </Link>
-);
 
 export default Home;

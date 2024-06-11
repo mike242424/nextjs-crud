@@ -35,7 +35,7 @@ export async function DELETE(
   { params: { id } }: { params: { id: string } },
 ) {
   try {
-    const validationResult = idParamSchema.safeParse(id);
+    const validationResult = idParamSchema.safeParse({ id });
 
     if (!validationResult.success) {
       const errorMessage = validationResult.error.errors[0].message;
